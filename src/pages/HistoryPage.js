@@ -1,3 +1,5 @@
+import { Box, Container } from "@mui/system";
+import { Button, Paper } from "@mui/material";
 import React, {useEffect, useMemo, useState} from "react";
 
 import { Commit } from "../components/Commit";
@@ -68,13 +70,19 @@ export default function HistoryPage() {
     }
 
     return (
-        <div>
-            <h2>Commit History</h2>
-            <input type="button" value="Refresh" onClick={() => refresh()}/>
-            <ul>
-                {renderCommits(commits)}
-            </ul>
-            <p><i>Refreshing in {countdown} seconds</i></p>
-        </div>
+        <Box style={{flex: 1}}>
+            <Paper id="commit-container" elevation={1}>
+                <Box style={{flexDirection: 'row', display: 'flex'}}>
+                    <h2>Commit History</h2>
+                    <Button onClick={() => refresh()}>Refresh</Button>
+                </Box>
+                <div id="list-container">
+                    {renderCommits(commits)}
+                </div>
+                <p style={{margin: 0}}>
+                    <i>Refreshing in {countdown} seconds</i>
+                </p>
+            </Paper>
+        </Box>
     );
 }
