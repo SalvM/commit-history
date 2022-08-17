@@ -7,4 +7,31 @@ html, body {
   sans-serif;
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
+  background-color: #E0BBE4;
+}
+
+.error {
+  color: red;
+}
+#access-container {
+  #access-card {
+    background-color: white;
+    justify-content: center;
+    align-items: center;
+    margin: 32px;
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0px 0px 15px -4px #979797;
+    h3 {
+      margin: 0;
+      margin-bottom: 16px;
+    }
+  }
+  form {
+    display: flex;
+    flex: 1;
+    Button {
+      margin-left: 8;
+    }
+  }
 }

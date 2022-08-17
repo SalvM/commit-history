@@ -1,11 +1,21 @@
+import {Box, Button, Container, TextField} from '@mui/material';
+import { Controller, useForm } from "react-hook-form";
+import React, { useState } from "react";
+
 import Octokit from "../utils/Octokit";
-import React from "react";
-import { useForm } from "react-hook-form";
 import { useNavigate } from 'react-router-dom';
 
 export default function AccessPage() {
     const navigate = useNavigate();
-    const { register, handleSubmit, watch, formState: { errors } } = useForm();
+    const { control, register, handleSubmit, formState: { errors } } = useForm({
+        mode: 'onChange',
+        defaultValues: {
+            token: ''
+        }
+      });
+    const [loading, setLoading] = useState(false);
+
+    console.log({errors})
 
     const onSubmit = async data => {
         try {
@@ -21,11 +31,31 @@ export default function AccessPage() {
     }
 
     return (
-        <div style={{flex: 1}}>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <input {...register("token", { required: true })} />
-                <input type="submit" value="Login" />
-            </form>
-        </div>
+        <Box style={{flex: 1}} id="access-container">
+            <Container maxWidth="sm" id="access-card">
+                <h3>Use GitHub Access Token</h3>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <Controller 
+                        name="token"
+                        control={control}
+                        rules={{required: true, minLength: 3}}
+                        render={({ field: { onChange, onBlur, value }, fieldState: { isDirty } }) => (
+                            <TextField
+                                id="token_field"
+                                onBlur={onBlur}
+                                onChange={(v) => onChange(v.target.value.trim())}
+                                placeholder={"Access Token"}
+                                value={value}
+                                autoComplete={"off"}
+                            />
+                        )}
+                    />
+                    <Button type="submit" variant="contained" disabled={loading}>Login</Button>
+                </form>
+                {
+                    errors?.token?.type && <p class="error">Insert a valid access token</p>
+                }
+            </Container>
+        </Box>
     );
 }
