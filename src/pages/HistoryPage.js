@@ -2,27 +2,60 @@ import React, {useEffect, useMemo, useState} from "react";
 
 import { Commit } from "../components/Commit";
 import Octokit from "../utils/Octokit";
-
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function HistoryPage() {
-    const token = useMemo(() => (localStorage.getItem('access_token')), []);
+    const token = useMemo(() => localStorage.getItem('access_token'), []);
     const [commits, setCommits] = useState([]);
-    // const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
+    const [lastRefreshMs, setLastRefreshMs] = useState(new Date().getTime());
+    const [countdown, setCountdown] = useState(30); // in seconds
+    const abortController = useMemo(() => (new AbortController()), [lastRefreshMs]); // to prevent calls overlap
+    const navigate = useNavigate();
+
+    const refresh = () => setLastRefreshMs(new Date().getTime()); // triggers the useEffect
 
     const updateCommitsList = async () => {
+        setLoading(true);
         try {
-            const response = await Octokit.getCommits(token);
+            const response = await Octokit.getCommits(token, {signal: abortController?.signal});
             if(response?.status !== 200) throw response;
             setCommits(response?.data);
         } catch(e) {
             console.error(e);
+            if (e.name == 'AbortError') {
+                // do nothing
+            } else if (e.message === 'Bad credentials') { // token invalid, redirect the user
+                navigate('/');
+            } else {
+                throw e;
+            }
+        } finally {
+            setLoading(false);
         }
     }
     
     useEffect(() => {
         updateCommitsList();
-    }, []);
+
+        // it refreshes the list every 30 seconds
+        const counterInterval = setInterval(() => {
+            const currentMs = new Date().getTime();
+            const diff = (currentMs - lastRefreshMs) / 1000;
+            const countdown = 30 - Math.floor(diff);
+            if(countdown === 0) {
+                clearInterval(counterInterval);
+                abortController?.abort();  // to prevent calls overlap
+                refresh();
+            }
+            setCountdown(countdown);
+        }, 1000);
+
+        return () => {
+            clearInterval(counterInterval);
+            abortController?.abort();
+        }    
+    }, [lastRefreshMs]);
 
     const renderCommits = (list) => {
         return list?.map((c, index) => {
@@ -37,9 +70,11 @@ export default function HistoryPage() {
     return (
         <div>
             <h2>Commit History</h2>
+            <input type="button" value="Refresh" onClick={() => refresh()}/>
             <ul>
                 {renderCommits(commits)}
             </ul>
+            <p><i>Refreshing in {countdown} seconds</i></p>
         </div>
     );
 }
