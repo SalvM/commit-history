@@ -4,7 +4,8 @@ import React, {useEffect, useMemo, useState} from "react";
 
 import { Commit } from "../components/Commit";
 import Octokit from "../utils/Octokit";
-import { useNavigate } from 'react-router-dom';
+
+//import { useNavigate } from 'react-router-dom';
 
 export default function HistoryPage() {
     const token = useMemo(() => localStorage.getItem('access_token'), []);
@@ -13,7 +14,7 @@ export default function HistoryPage() {
     const [lastRefreshMs, setLastRefreshMs] = useState(new Date().getTime());
     const [countdown, setCountdown] = useState(30); // in seconds
     const abortController = useMemo(() => (new AbortController()), [lastRefreshMs]); // to prevent calls overlap
-    const navigate = useNavigate();
+    //const navigate = useNavigate();
 
     const refresh = () => setLastRefreshMs(new Date().getTime()); // triggers the useEffect
 
@@ -28,7 +29,7 @@ export default function HistoryPage() {
             if (e.name == 'AbortError') {
                 // do nothing
             } else if (e.message === 'Bad credentials') { // token invalid, redirect the user
-                navigate('/');
+                // navigate('/');
             } else {
                 throw e;
             }
@@ -74,7 +75,7 @@ export default function HistoryPage() {
             <Paper id="commit-container" elevation={1}>
                 <Box style={{flexDirection: 'row', display: 'flex'}}>
                     <h2>Commit History</h2>
-                    <Button onClick={() => refresh()}>Refresh</Button>
+                    <Button onClick={() => refresh()} disabled={loading}>Refresh</Button>
                 </Box>
                 <div id="list-container">
                     {renderCommits(commits)}
