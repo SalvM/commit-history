@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "prod": "commit-history-test",
+    "default": "commit-history-test"
+  },
+  "targets": {}
+}
