@@ -12,3 +12,7 @@ The page will refresh every 30 seconds OR by manual click by the user.
 To prevent overlapping I used the AbortController.
 
 Each time the counter resets I set the new *lastRefreshMs* to trigger the new API call and restart the counter again.
+
+# Firebase App
+I used Firebase Hosting to public the test project.
+You can reach it here: https://commit-history-test.web.app/
